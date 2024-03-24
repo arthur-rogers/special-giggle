@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: A sample template
+
+Parameters:
+  Env:
+    Type: String
+    Default: 'dev'
+  App:
+    Type: String
+    Default: 'test-app'
+  UsersTableName:
+    Type: String
+    Default: users
+  OrdersTableName:
+    Type: String
+    Default: orders
+  ReportsBucketName:
+    Type: String
+    Default: 'aryndin-reports'
+
+Resources:
+  DynamoDBStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./infrastructure/dynamodb/template.yml
+      Parameters:
+        Env: !Ref Env
+        App: !Ref App
+        UsersTableName: !Ref UsersTableName
+        OrdersTableName: !Ref OrdersTableName
+
+  S3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./infrastructure/s3/template.yml
+      Parameters:
+        Env: !Ref Env
+        App: !Ref App
+        ReportsBucketName: !Ref ReportsBucketName
+
+  LambdaStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: ./infrastructure/lambda/template.yml
+      Parameters:
+        # Env: !Ref Env
+        # App: !Ref App
+        OrdersTable: !Sub "${App}-${Env}-${OrdersTableName}"
